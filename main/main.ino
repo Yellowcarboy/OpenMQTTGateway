@@ -115,7 +115,7 @@ struct GfSun2000Data {};
 #if defined(ZwebUI) && defined(ESP32)
 #  include "config_WebUI.h"
 #endif
-#if defined(ZgatewayRF) || defined(ZgatewayRF2) || defined(ZgatewayPilight) || defined(ZactuatorSomfy) || defined(ZgatewayRTL_433)
+#if defined(ZgatewayRF) || defined(ZgatewayRF2) || defined(ZgatewayPilight) || defined(ZactuatorSomfy) || defined(ZgatewayRTL_433) || defined(ZgatewayRFBlind)
 #  include "config_RF.h"
 #endif
 #ifdef ZgatewayWeatherStation
@@ -1258,6 +1258,10 @@ void setup() {
 #  endif
 #  define ACTIVE_RECEIVER ACTIVE_PILIGHT
 #endif
+#ifdef ZgatewayRFBlind
+  setupRFBlind();
+  modules.add(ZgatewayRFBlind);
+#endif
 #ifdef ZgatewayWeatherStation
   setupWeatherStation();
   modules.add(ZgatewayWeatherStation);
@@ -2191,6 +2195,9 @@ void loop() {
 #ifdef ZgatewayRF2
       RF2toMQTT();
 #endif
+#ifdef ZgatewayRFBlind
+      RFBlindtoMQTT();
+#endif
 #ifdef ZgatewayWeatherStation
       ZgatewayWeatherStationtoMQTT();
 #endif
@@ -2432,6 +2439,9 @@ String stateMeasures() {
   }
 
 #  endif
+#  ifdef ZgatewayRFBlilnd
+  modules = modules + ZgatewayRFBlind;
+#  endif
 #  ifdef ZgatewayBT
 #    ifdef ESP32
   SYSdata["lowpowermode"] = (int)lowpowermode;
@@ -2573,6 +2583,9 @@ void receivingMQTT(char* topicOri, char* datacallback) {
 #  endif
 #  ifdef ZgatewayRF2
     MQTTtoRF2(topicOri, jsondata);
+#  endif
+#  ifdef ZgatewayRFBlind
+    MQTTtoRFBlind(topicOri, jsondata);
 #  endif
 #  ifdef Zgateway2G
     MQTTto2G(topicOri, jsondata);

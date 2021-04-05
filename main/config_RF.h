@@ -129,6 +129,12 @@ const char parameters[40][4][24] = {
 #    define DISCOVERY_TRACE_LOG(...)
 #  endif
 #endif
+#ifdef ZgatewayRFBlind
+extern void setupRFBlind();
+extern void RFBlindtoMQTT();
+extern void MQTTtoRFBlind(char* topicOri, JsonObject& RFdata);
+#endif
+
 /*-------------------RF topics & parameters----------------------*/
 //433Mhz MQTT Subjects and keys
 #define subjectMQTTtoRF       "/commands/MQTTto433"
@@ -172,6 +178,10 @@ const char parameters[40][4][24] = {
 #define subjectMQTTtoRFset   "/commands/MQTTtoRF/config"
 #define subjectRTL_433toMQTT "/RTL_433toMQTT"
 
+/*-------------------RFBlind topics & parameters----------------------*/
+#define subjectMQTTtoRFBlind    "/commands/MQTTtoBlind"
+#define subjectRFBlindtoMQTT    "/BlindtoMQTT"
+#define RFBLIND_EMITTER_REPEAT 10
 /*-------------------RF frequency----------------------*/
 //Match frequency to the hardware version of the radio used.
 #ifndef RF_FREQUENCY
@@ -212,9 +222,11 @@ RFConfig_s RFConfig;
 /*-------------------PIN DEFINITIONS----------------------*/
 #ifndef RF_RECEIVER_GPIO
 #  ifdef ESP8266
-#    define RF_RECEIVER_GPIO 0 // D3 on nodemcu // put 4 with rf bridge direct mod
+#    define RF_RECEIVER_GPIO 12 // D3 on nodemcu // put 4 with rf bridge direct mod
+#    define RFBLIND_RECEIVER_GPIO 4
 #  elif ESP32
 #    define RF_RECEIVER_GPIO 27 // D27 on DOIT ESP32
+#    define RFBLIND_RECEIVER_GPIO 14
 #  elif __AVR_ATmega2560__
 #    define RF_RECEIVER_GPIO 1 //1 = D3 on mega
 #  else
@@ -224,7 +236,7 @@ RFConfig_s RFConfig;
 
 #ifndef RF_EMITTER_GPIO
 #  ifdef ESP8266
-#    define RF_EMITTER_GPIO 3 // RX on nodemcu if it doesn't work with 3, try with 4 (D2) // put 5 with rf bridge direct mod
+#    define RF_EMITTER_GPIO 5 // RX on nodemcu if it doesn't work with 3, try with 4 (D2) // put 5 with rf bridge direct mod
 #  elif ESP32
 #    define RF_EMITTER_GPIO 12 // D12 on DOIT ESP32
 #  elif __AVR_ATmega2560__
